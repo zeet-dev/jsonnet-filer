@@ -1,0 +1,1 @@
+This test has no "file" objects in it. Thus it should report that there's nothing to do, and some helpful information explaining the process and what the user can do next.
