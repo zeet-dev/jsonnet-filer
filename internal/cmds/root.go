@@ -1,12 +1,19 @@
 package cmds
 
 import (
+	"encoding/json"
 	"fmt"
+	"path"
+	"path/filepath"
 
+	"github.com/hexops/valast"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/yaml"
 
+	"github.com/zeet-dev/jsonnet-filer/internal/cabinet"
 	"github.com/zeet-dev/jsonnet-filer/internal/clioptions/iostreams"
 	"github.com/zeet-dev/jsonnet-filer/internal/jsonnet"
+	"github.com/zeet-dev/jsonnet-filer/pkg/api/v1alpha1"
 )
 
 func NewRootCmd(s iostreams.IOStreams) *cobra.Command {
@@ -27,12 +34,43 @@ func NewRootCmd(s iostreams.IOStreams) *cobra.Command {
 			//	return runHelp(cmd)
 			//}
 
-			result, err := jsonnet.EvaluateFile("./cabinet.jsonnet")
+			resultString, err := jsonnet.EvaluateFile("./cabinet.jsonnet")
 			if err != nil {
 				return err
 			}
 
-			fmt.Fprintf(s.Out(), "%+v\n", result)
+			var resultMap map[string]interface{}
+			err = json.Unmarshal([]byte(resultString), &resultMap)
+			if err != nil {
+				return err
+			}
+
+			files := cabinet.Find[v1alpha1.File](resultMap)
+			fmt.Fprintln(s.ErrOut(), valast.String(files))
+
+			for _, f := range files {
+				// TODO this is just here for ease of reading
+				// We only want to write the f.Content in the format given in f.EncodingStrategy
+				contentBytes, err := yaml.Marshal(f)
+				if err != nil {
+					return err
+				}
+
+				fpath := path.Join(".", f.Metadata.Name)
+				fpath, err = filepath.Abs(fpath)
+				if err != nil {
+					return err
+				}
+
+				fmt.Fprintf(s.ErrOut(), "writing file: %s\n", fpath)
+				fmt.Fprintln(s.ErrOut(), "-----------")
+				fmt.Fprintln(s.ErrOut(), string(contentBytes))
+				fmt.Fprintln(s.ErrOut(), "-----------")
+				//err = os.WriteFile(fpath, contentBytes, 0644)
+				//if err != nil {
+				//	return err
+				//}
+			}
 
 			return nil
 		},

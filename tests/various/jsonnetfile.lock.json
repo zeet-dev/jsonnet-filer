@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dependencies": [
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/jsonnet-libs/k8s-libsonnet.git",
+          "subdir": ""
+        }
+      },
+      "version": "2ff9e542231fce1ba6d880d1157c81724f176bc6",
+      "sum": "G6RPLFzcQvD/NUp30j1ucvPw5uLdBLIM4rdxbL5RO2I="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/zeet-dev/jsonnet-filer-lib.git",
+          "subdir": ""
+        }
+      },
+      "version": "0586698c10f9090997295d084531bfaa11ae1406",
+      "sum": "aASsgk6WI2UhRLgBQ3FB14CAn8t0r7IJNLREJuterXM="
+    }
+  ],
+  "legacyImports": false
+}
